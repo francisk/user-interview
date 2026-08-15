@@ -1,0 +1,26 @@
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local environments and editor files
+.venv/
+venv/
+.DS_Store
+.env
+.env.*
+
+# Local Experience data and configuration
+extracting-human-agent-experience.json
+candidates/
+episodes/
+经验抽取*.md
+weekly-*.json
+*.jsonl
+work/
+
+# Archives are not a distribution format for this repository
+*.zip
+*.tar
+*.tar.gz
+*.tgz
