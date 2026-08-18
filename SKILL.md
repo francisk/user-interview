@@ -24,12 +24,14 @@ Episode 保存并刷新阅读归档后结束。不得顺手生成简历、Agent 
 
 不得写死 Codex 缓存目录，因为安装位置和版本会变化；不得要求用户安装 Python，也不得创建或分发 venv。业务用户只需要当前 Agent 环境提供一个合格运行时。
 
+同时把当前实际加载的这份 `SKILL.md` 所在目录解析为绝对路径 `skill_root`。所有随 Skill 分发的脚本都从 `skill_root/scripts/` 调用，不根据 Agent 品牌、用户主目录或当前工作目录猜测安装位置。无法确定 `skill_root` 或目标脚本不存在时，报告 `skill_installation_invalid` 并停止，不搜索其他 Skill 目录。
+
 ## 首先通过经验仓库门禁
 
 每次调用在读取 Session、文档或 Candidate 前运行：
 
 ```bash
-"<python_runtime>" ~/.codex/skills/extracting-human-agent-experience/scripts/repository_config.py check
+"<python_runtime>" "<skill_root>/scripts/repository_config.py" check
 ```
 
 - 退出码 `0`、状态 `configured`：只使用返回的 `repository_path`。
@@ -153,7 +155,7 @@ Episode 和 Candidate 完成后，刷新该 Candidate 的原 `archive_date`。�
 直接来源：
 
 ```bash
-"<python_runtime>" ~/.codex/skills/extracting-human-agent-experience/scripts/materialize_experience_archive.py \
+"<python_runtime>" "<skill_root>/scripts/materialize_experience_archive.py" \
   --repository "<configured repository_path>" \
   --archive-date "<Candidate archive_date>" \
   --source-mode "<direct_session|direct_document>"

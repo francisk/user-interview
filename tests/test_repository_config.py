@@ -1,4 +1,6 @@
 import json
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -10,13 +12,26 @@ SCRIPT = Path(__file__).parents[1] / "scripts" / "repository_config.py"
 
 
 class RepositoryConfigTests(unittest.TestCase):
-    def run_cli(self, *args):
+    def run_cli(self, *args, env=None, script=SCRIPT):
         return subprocess.run(
-            [sys.executable, str(SCRIPT), *map(str, args)],
+            [sys.executable, str(script), *map(str, args)],
             text=True,
             capture_output=True,
             check=False,
+            env=env,
         )
+
+    def isolated_env(self, home: Path) -> dict[str, str]:
+        env = os.environ.copy()
+        env["HOME"] = str(home)
+        env.pop("XDG_CONFIG_HOME", None)
+        return env
+
+    def install_script(self, root: Path) -> Path:
+        script = root / "scripts" / "repository_config.py"
+        script.parent.mkdir(parents=True)
+        shutil.copy2(SCRIPT, script)
+        return script
 
     def test_missing_config_requests_configuration_without_guessing(self):
         with tempfile.TemporaryDirectory() as td:
@@ -65,6 +80,26 @@ class RepositoryConfigTests(unittest.TestCase):
             self.assertEqual(json.loads(result.stdout)["status"], "repository_unavailable")
             self.assertFalse(config.exists())
 
+    def test_default_config_path_is_in_skill_root(self):
+        with tempfile.TemporaryDirectory() as td:
+            home = Path(td)
+            skill_root = home / ".agents" / "skills" / "extracting-human-agent-experience"
+            script = self.install_script(skill_root)
+            repository = home / "experience-repository"
+            result = self.run_cli(
+                "configure",
+                "--repository",
+                repository,
+                env=self.isolated_env(home),
+                script=script,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            expected = skill_root / "extracting-human-agent-experience.json"
+            self.assertEqual(Path(payload["config_path"]).resolve(), expected.resolve())
+            self.assertTrue(expected.is_file())
+            self.assertFalse((home / ".config" / "user-interview").exists())
 
 if __name__ == "__main__":
     unittest.main()

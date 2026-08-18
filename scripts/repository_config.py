@@ -10,7 +10,14 @@ import sys
 from pathlib import Path
 
 
-DEFAULT_CONFIG = Path.home() / ".codex" / "skill-configs" / "extracting-human-agent-experience.json"
+def skill_config_path() -> Path:
+    return Path(__file__).resolve().parents[1] / "extracting-human-agent-experience.json"
+
+
+def resolve_config_path(explicit: Path | None) -> Path:
+    if explicit is not None:
+        return explicit.expanduser()
+    return skill_config_path()
 
 
 def emit(status: str, **fields: object) -> None:
@@ -82,19 +89,20 @@ def parse_args() -> argparse.Namespace:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     check = subparsers.add_parser("check")
-    check.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    check.add_argument("--config", type=Path)
 
     configure = subparsers.add_parser("configure")
-    configure.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    configure.add_argument("--config", type=Path)
     configure.add_argument("--repository", type=Path, required=True)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    config_path = resolve_config_path(args.config)
     if args.command == "check":
-        return command_check(args.config)
-    return command_configure(args.config, args.repository)
+        return command_check(config_path)
+    return command_configure(config_path, args.repository)
 
 
 if __name__ == "__main__":

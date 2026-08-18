@@ -6,6 +6,13 @@ SKILL = Path(__file__).resolve().parents[1] / "SKILL.md"
 
 
 class SkillContractTests(unittest.TestCase):
+    def test_runtime_commands_are_relative_to_loaded_skill_root(self) -> None:
+        text = SKILL.read_text(encoding="utf-8")
+
+        self.assertNotIn("~/.codex/skills/extracting-human-agent-experience", text)
+        self.assertNotIn("~/.agents/skills/extracting-human-agent-experience", text)
+        self.assertIn("skill_root", text)
+
     def test_interview_start_requires_a_complete_context_card(self) -> None:
         text = SKILL.read_text(encoding="utf-8")
 

@@ -113,6 +113,8 @@ git clone https://github.com/francisk/user-interview.git \
 
 重新打开 Agent 任务后，使用上面的触发语即可。首次保存时，Agent 只会询问一个 Experience Repository 路径。
 
+Skill 会从实际加载的 `SKILL.md` 定位随附脚本，因此也可以安装到 Agent 支持的其他 Skill 目录，不依赖上述两个固定路径。配置保存在 Skill 根目录的 `extracting-human-agent-experience.json`，该文件已被 Git 忽略。
+
 ## Python 运行环境
 
 业务用户不需要维护 venv。
@@ -161,9 +163,14 @@ README.md                # 面向人的介绍和使用说明
 ```bash
 EXPERIENCE_PYTHON=/absolute/path/to/python3
 "$EXPERIENCE_PYTHON" -m unittest discover -s tests -p 'test_*.py' -v
+"$EXPERIENCE_PYTHON" scripts/validate_eval_catalog.py \
+  --triggers references/trigger-tests.csv \
+  --behaviors references/eval-cases.md
 ```
 
-当前测试覆盖仓库配置、不可用路径的停止行为、直接来源与 weekly 来源的归档兼容、原子替换和错误输入保护。
+当前自动测试覆盖 Skill 根目录配置、不可用路径的停止行为、直接来源与 weekly 来源的归档兼容、原子替换、错误输入保护，以及触发/行为评估目录的结构完整性。
+
+`references/trigger-tests.csv` 和 `references/eval-cases.md` 中的自然语言用例仍是 Agent 行为评估输入。目录校验只证明用例没有重复或遗漏必要栏目，不证明某个模型已经逐项通过；发布前需要在目标 Agent 环境另行执行行为评估。
 
 ## License
 
