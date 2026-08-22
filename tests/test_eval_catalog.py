@@ -27,7 +27,7 @@ class EvalCatalogTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('"trigger_count": 21', result.stdout)
-        self.assertIn('"behavior_count": 22', result.stdout)
+        self.assertIn('"behavior_count": 23', result.stdout)
 
     def test_duplicate_trigger_ids_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as td:

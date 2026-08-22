@@ -17,7 +17,7 @@ class SkillContractTests(unittest.TestCase):
         text = SKILL.read_text(encoding="utf-8")
 
         self.assertIn("访谈启动上下文卡", text)
-        for required_part in ("当时的情况", "你做的取舍", "后来变成什么", "现在还不能说什么"):
+        for required_part in ("当时的情况", "你做的取舍", "后来变成什么", "这次要核对什么"):
             self.assertIn(required_part, text)
 
     def test_user_facing_interviewer_has_a_warm_listening_voice(self) -> None:
@@ -32,6 +32,15 @@ class SkillContractTests(unittest.TestCase):
 
         self.assertIn("我（Agent）", text)
         self.assertIn("你（人类）", text)
+
+    def test_interview_records_human_account_without_extra_inference_or_verification(self) -> None:
+        text = SKILL.read_text(encoding="utf-8")
+
+        self.assertIn("采访记录边界", text)
+        self.assertIn("来源标签，不是可信度等级", text)
+        self.assertIn("不得额外搜索代码、测试、文档、历史 Session 或外部资料", text)
+        self.assertIn("不得新增用户没有明确表达的动机、因果、价值判断、技术状态或结果", text)
+        self.assertIn("不得追加证据上限、未验证、尚不能证明", text)
 
 
 if __name__ == "__main__":
